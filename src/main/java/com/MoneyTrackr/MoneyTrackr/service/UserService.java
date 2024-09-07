@@ -6,7 +6,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.MoneyTrackr.MoneyTrackr.entity.User;
+import com.MoneyTrackr.MoneyTrackr.dto.NewUserDTO;
+import com.MoneyTrackr.MoneyTrackr.entity.Users;
 import com.MoneyTrackr.MoneyTrackr.exception.BadRequestException;
 import com.MoneyTrackr.MoneyTrackr.exception.NotFoundException;
 import com.MoneyTrackr.MoneyTrackr.repository.UserRepository;
@@ -21,15 +22,15 @@ public class UserService {
 	private ModelMapper modelMapper;
 
 
-	public User findUserByID(Long id) {
+	public Users findUserByID(Long id) {
 
 		return repository.findById(id)
 				.orElseThrow(() -> new NotFoundException("User not found: " + id));
 	}
 
-	public User findUserByEmail(String email) {
+	public Users findUserByEmail(String email) {
 
-		User user = repository.findByEmail(email);
+		Users user = repository.findByEmail(email);
 		if (user == null) {
 			throw new NotFoundException("User not found: " + email);
 		}
@@ -37,30 +38,59 @@ public class UserService {
 		return user;
 	}
 
-	public List<User> findAll() {
+	public List<Users> findAll() {
 		return repository.findAll();
 	}
 
-	public User inserirUsuario(User obj) {
-		boolean exists = repository.existsByEmail(obj.getEmail());
-		if (exists) {
-			throw new BadRequestException("A user with this email is already registered.");
-		}
+	public Users insertUser(NewUserDTO obj) {
+		
+		boolean emailExists  = repository.existsByEmail(obj.getEmail());
+		boolean documentExists  = repository.existsByDocument(obj.getDocument());
+		boolean usernameExists  = repository.existsByUserName(obj.getUserName());
+		
+		StringBuilder errorMessage = new StringBuilder();
 
-		User user = modelMapper.map(obj, User.class);
+	    if (emailExists) {
+	        errorMessage.append("A user with this email is already registered. ");
+	    }
 
-		return repository.save(user);
+	    if (documentExists) {
+	        errorMessage.append("A user with this document is already registered. ");
+	    }
+
+	    if (usernameExists) {
+	        errorMessage.append("A user with this userName is already registered.");
+	    }
+
+	    if (errorMessage.length() > 0) {
+	        throw new BadRequestException(errorMessage.toString().trim());
+	    }
+
+	    Users user = modelMapper.map(obj, Users.class);
+
+	    return repository.save(user);
+
 	}
 
-	public void alterUser(Long id, User obj) {
-		boolean exists = repository.existsById(id);
-		if (!exists) {
+	public void alterUser(Long id, NewUserDTO obj) {
+		boolean idExists = repository.existsById(id);
+		
+		if(!idExists) {
 			throw new BadRequestException("It was not possible to change ID " + id +" nonexistent");
 		}
 
-		User user = modelMapper.map(obj, User.class);
+		Users user = modelMapper.map(obj, Users.class);
 		user.setUserID(id);
 		repository.save(user);
+	}
+	
+	public void deleteUser(Long id) {
+		boolean exists = repository.existsById(id);
+		if(!exists) {
+			throw new BadRequestException("It was not possible to change ID " + id +" nonexistent");
+		}
+		repository.deleteById(id);
+
 	}
 
 }

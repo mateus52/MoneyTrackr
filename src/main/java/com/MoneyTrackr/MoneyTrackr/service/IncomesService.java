@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.MoneyTrackr.MoneyTrackr.dto.IncomeDTO;
 import com.MoneyTrackr.MoneyTrackr.entity.Incomes;
+import com.MoneyTrackr.MoneyTrackr.entity.Users;
 import com.MoneyTrackr.MoneyTrackr.exception.BadRequestException;
 import com.MoneyTrackr.MoneyTrackr.exception.NotFoundException;
 import com.MoneyTrackr.MoneyTrackr.repository.IncomesRepository;
@@ -23,6 +24,9 @@ public class IncomesService {
 		@Autowired
 		private ModelMapper modelMapper;
 		
+		@Autowired
+		private UserService userService;
+		
 
 		public Incomes findincomesByID(Long id) {
 			return repository.findById(id)
@@ -34,8 +38,11 @@ public class IncomesService {
 		}	
 
 		public Incomes insertIncomes(@Valid IncomeDTO dto) {
+			
+			Users user = userService.findUserByID(dto.getUser());
 				
 			Incomes incomes = modelMapper.map(dto, Incomes.class);
+			incomes.setUser(user);
 				
 			return repository.save(incomes);
 			
@@ -56,8 +63,11 @@ public class IncomesService {
 				throw new BadRequestException("It was not possible to change ID " + id +" nonexistent");
 			}
 			
+			Users user = userService.findUserByID(dto.getUser());
+			
 			Incomes income = modelMapper.map(dto, Incomes.class);
 			income.setIncomeID(id);
+			income.setUser(user);
 			repository.save(income);
 		}
 		

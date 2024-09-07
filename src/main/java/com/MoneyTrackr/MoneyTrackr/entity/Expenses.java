@@ -1,5 +1,7 @@
 package com.MoneyTrackr.MoneyTrackr.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,9 +37,10 @@ public class Expenses {
 	@Column(name = "expense_data")
 	private String expenseData;
 	
+	@JsonIgnore
 	@ManyToOne
-    @JoinColumn(name = "user_id")
-	private User user;
+    @JoinColumn(name = "userid")
+	private Users user;
 	
 	
 }

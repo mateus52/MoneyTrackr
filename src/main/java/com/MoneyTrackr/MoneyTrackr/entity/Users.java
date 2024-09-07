@@ -3,17 +3,12 @@ package com.MoneyTrackr.MoneyTrackr.entity;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import com.MoneyTrackr.MoneyTrackr.entity.enums.Profile;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,8 +24,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name= "user")
-public class User implements Serializable{
+@Table(name= "users")
+public class Users implements Serializable{
 
 	/**
 	 * 
@@ -40,40 +35,38 @@ public class User implements Serializable{
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "user_id")
 	private Long userID;
 	
+	@Column(name = "user_name",unique=true)
 	private String userName;
 	
 	@JsonIgnore
+	@Column(name = "password")
 	private String password;
 	
+	@Column(name = "email",unique=true)
 	private String email;
 	
-	@ElementCollection(fetch=FetchType.EAGER)
-	@CollectionTable(name="profile")
-	private Set<Long> profiles = new HashSet<>();
+	@Column(name = "document",unique=true)
+	private String document;
 	
-	@OneToMany(mappedBy = "user	", cascade = CascadeType.ALL)
-	private Set<Expenses> expenses;
+	@Column(name = "phone")
+	private String phone;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private Set<Expenses> expenses = new HashSet<>();
 	 
-	@OneToMany(mappedBy = "user	", cascade = CascadeType.ALL)
-	private Set<Incomes> incomes;
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+	private Set<Incomes> incomes = new HashSet<>();
 	
-	public User(Long userID, String userName, String password, String email) {
+	public Users(Long userID, String userName, String password, String email, String document, String phone) {
 		super();
 		this.userID = userID;
 		this.userName = userName;
 		this.password = password;
 		this.email = email;
-	}
-	
-	public Set<Profile> getProfiles() {
-		return profiles.stream().map(x -> Profile.toEnum(x)).collect(Collectors.toSet());
-	}
-	
-	public void addProfile(Profile profile) {
-		profiles.add(profile.getCod());
+		this.document = document;
+		this.phone = phone;
 	}
 
 }

@@ -2,13 +2,17 @@ package com.MoneyTrackr.MoneyTrackr.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.MoneyTrackr.MoneyTrackr.entity.User;
+import com.MoneyTrackr.MoneyTrackr.entity.Users;
 
 
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<Users, Long>{
 	
 	boolean existsByEmail(String email);
 
-	User findByEmail(String email);
+	Users findByEmail(String email);
+	
+	boolean existsByUserName(String userName);
+	
+	boolean existsByDocument(String document);
 
 }
