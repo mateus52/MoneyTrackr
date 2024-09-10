@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.MoneyTrackr.MoneyTrackr.dto.ExpenseDTO;
+import com.MoneyTrackr.MoneyTrackr.dto.PeriodDTO;
 import com.MoneyTrackr.MoneyTrackr.entity.Expenses;
 import com.MoneyTrackr.MoneyTrackr.service.ExpensesService;
 
@@ -64,4 +65,8 @@ public class ExpensesController {
 		return ResponseEntity.noContent().build();
 	}
 
+	@GetMapping(value ="/sum/{id}")
+	public ResponseEntity<Double> sumExpenses(@Valid @RequestBody PeriodDTO dto, @PathVariable Long id) {
+		return ResponseEntity.ok().body(service.sumExpenses(dto, id));
+	}
 }

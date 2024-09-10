@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.MoneyTrackr.MoneyTrackr.dto.IncomeDTO;
+import com.MoneyTrackr.MoneyTrackr.dto.PeriodDTO;
 import com.MoneyTrackr.MoneyTrackr.entity.Incomes;
 import com.MoneyTrackr.MoneyTrackr.service.IncomesService;
 
@@ -62,6 +63,11 @@ public class IncomesController {
 	public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
 		service.deleteincomes(id);
 		return ResponseEntity.noContent().build();
+	}
+	
+	@GetMapping(value ="/sum/{id}")
+	public ResponseEntity<Double> sumIncomes(@Valid @RequestBody PeriodDTO dto, @PathVariable Long id) {
+		return ResponseEntity.ok().body(service.sumIncomes(dto, id));
 	}
 
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.MoneyTrackr.MoneyTrackr.dto.NewUserDTO;
@@ -20,7 +21,9 @@ public class UserService {
 
 	@Autowired
 	private ModelMapper modelMapper;
-
+	
+	@Autowired
+	private PasswordEncoder pe;
 
 	public Users findUserByID(Long id) {
 
@@ -33,6 +36,16 @@ public class UserService {
 		Users user = repository.findByEmail(email);
 		if (user == null) {
 			throw new NotFoundException("User not found: " + email);
+		}
+
+		return user;
+	}
+	
+	public Users findUserByUserName(String userName) {
+
+		Users user = repository.findByUserName(userName);
+		if (user == null) {
+			throw new NotFoundException("User not found: " + userName);
 		}
 
 		return user;
@@ -66,7 +79,7 @@ public class UserService {
 	        throw new BadRequestException(errorMessage.toString().trim());
 	    }
 
-	    Users user = modelMapper.map(obj, Users.class);
+	    Users user = new Users(null, obj.getUserName(), pe.encode(obj.getPassword()), obj.getEmail(), obj.getDocument(), obj.getPhone());
 
 	    return repository.save(user);
 
@@ -81,6 +94,7 @@ public class UserService {
 
 		Users user = modelMapper.map(obj, Users.class);
 		user.setUserID(id);
+		user.setPassword(pe.encode(obj.getPassword()));
 		repository.save(user);
 	}
 	

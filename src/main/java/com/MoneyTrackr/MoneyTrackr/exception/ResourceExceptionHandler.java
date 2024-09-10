@@ -13,6 +13,13 @@ import jakarta.servlet.http.HttpServletRequest;
 @ControllerAdvice
 public class ResourceExceptionHandler extends ResponseEntityExceptionHandler{
 	
+	@ExceptionHandler(UnauthorizedException.class)
+	public ResponseEntity<StandardError> unauthorizedException(UnauthorizedException e, HttpServletRequest request){
+		
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new StandardError(HttpStatus.UNAUTHORIZED,
+				e.getMessage(), request.getRequestURI()));
+	}
+	
 	@ExceptionHandler(BadRequestException.class)
 	public ResponseEntity<StandardError> badRequestException(BadRequestException e, HttpServletRequest request){
 		

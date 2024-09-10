@@ -2,7 +2,6 @@ package com.MoneyTrackr.MoneyTrackr.controller;
 
 import java.net.URI;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -19,7 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.MoneyTrackr.MoneyTrackr.dto.NewUserDTO;
-import com.MoneyTrackr.MoneyTrackr.dto.UserDTO;
 import com.MoneyTrackr.MoneyTrackr.entity.Users;
 import com.MoneyTrackr.MoneyTrackr.service.UserService;
 
@@ -42,10 +40,9 @@ public class UserController {
 	}
 	
 	@GetMapping
-	public ResponseEntity<List<UserDTO>> listUsers(){
+	public ResponseEntity<List<Users>> listUsers(){
 		List<Users> list = service.findAll();
-		List<UserDTO> listDto = list.stream().map(obj -> new UserDTO(obj)).collect(Collectors.toList());
-		return ResponseEntity.ok().body(listDto);
+		return ResponseEntity.ok().body(list);
 	}
 	
 	@PostMapping

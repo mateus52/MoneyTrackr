@@ -46,7 +46,7 @@ public class Users implements Serializable{
 	
 	@Column(name = "email",unique=true)
 	private String email;
-	
+		
 	@Column(name = "document",unique=true)
 	private String document;
 	

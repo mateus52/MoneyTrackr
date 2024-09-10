@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.MoneyTrackr.MoneyTrackr.dto.ExpenseDTO;
+import com.MoneyTrackr.MoneyTrackr.dto.PeriodDTO;
 import com.MoneyTrackr.MoneyTrackr.entity.Expenses;
 import com.MoneyTrackr.MoneyTrackr.entity.Users;
-import com.MoneyTrackr.MoneyTrackr.exception.BadRequestException;
 import com.MoneyTrackr.MoneyTrackr.exception.NotFoundException;
 import com.MoneyTrackr.MoneyTrackr.repository.ExpenseRepository;
 
@@ -51,7 +51,7 @@ public class ExpensesService {
 		public void deleteExpense(Long id) {
 			boolean exists = repository.existsById(id);
 			if(!exists) {
-				throw new BadRequestException("It was not possible to change ID " + id +" nonexistent");
+				throw new NotFoundException("It was not possible to change. User: " + id +" nonexistent");
 			}
 			repository.deleteById(id);
 
@@ -60,7 +60,7 @@ public class ExpensesService {
 		public void alterExpense(Long id, @Valid ExpenseDTO dto) {
 			boolean exists = repository.existsById(id);
 			if(!exists) {
-				throw new BadRequestException("It was not possible to change ID " + id +" nonexistent");
+				throw new NotFoundException("It was not possible to change. User: " + id +" nonexistent");
 			}
 			
 			Users user = userService.findUserByID(dto.getUser());
@@ -69,6 +69,17 @@ public class ExpensesService {
 			expense.setExpenseID(id);
 			expense.setUser(user);
 			repository.save(expense);
+		}
+		
+		public Double sumExpenses(PeriodDTO dto, Long id) {
+			
+			Users user = userService.findUserByID(id);
+			
+			if(user == null) {
+				throw new NotFoundException("idUser not found: " + id);
+			}
+			
+			return repository.sumExpenses(dto.getInitialData(), dto.getFinalData(), id);
 		}
 		
 		
