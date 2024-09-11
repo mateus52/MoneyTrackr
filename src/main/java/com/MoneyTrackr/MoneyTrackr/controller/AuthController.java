@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.MoneyTrackr.MoneyTrackr.dto.AuthenticationRequestDTO;
 import com.MoneyTrackr.MoneyTrackr.service.AuthService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 @CrossOrigin
@@ -22,6 +24,12 @@ public class AuthController {
 	@PostMapping(value= "/login")
 	public ResponseEntity<?> login(@RequestBody AuthenticationRequestDTO dto){
 		return ResponseEntity.ok(authService.login(dto));
+	}
+	
+	@PostMapping(value = "/forgot")
+	public ResponseEntity<Void> forgot(@Valid String email) {
+		authService.sendNewPassword(email);
+		return ResponseEntity.noContent().build();
 	}
 	
 }

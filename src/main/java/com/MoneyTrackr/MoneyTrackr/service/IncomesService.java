@@ -49,37 +49,27 @@ public class IncomesService {
 		}
 			
 		public void deleteincomes(Long id) {
-			boolean exists = repository.existsById(id);
-			if(!exists) {
-				throw new NotFoundException("It was not possible to change. User: " + id +" nonexistent");
-			}
+			
+			findincomesByID(id);
+			
 			repository.deleteById(id);
 
 		}
 		
 		public void alterincomes(Long id, @Valid IncomeDTO dto) {
-			boolean exists = repository.existsById(id);
-			if(!exists) {
-				throw new NotFoundException("It was not possible to change. User: " + id +" nonexistent");
-			}
 			
-			Users user = userService.findUserByID(dto.getUser());
-			
-			Incomes income = modelMapper.map(dto, Incomes.class);
-			income.setIncomeID(id);
-			income.setUser(user);
+			Incomes income = findincomesByID(id);
+			income.setAmount(dto.getAmount());
+			income.setIncomeName(dto.getIncomeName());
+			income.setIncomeData(dto.getIncomeData());
 			repository.save(income);
 		}
 
 		public Double sumIncomes(@Valid PeriodDTO dto, Long id) {
-			
-			Users user = userService.findUserByID(id);
-			
-			if(user == null) {
-				throw new NotFoundException("idUser not found: " + id);
-			}
-			
-		 return repository.sumIncomes(dto.getInitialData(), dto.getFinalData(), id);
+
+			userService.findUserByID(id);
+
+			return repository.sumIncomes(dto.getInitialData(), dto.getFinalData(), id);
 		}
 		
 		

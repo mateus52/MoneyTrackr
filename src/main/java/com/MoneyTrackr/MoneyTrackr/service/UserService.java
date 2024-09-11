@@ -2,14 +2,18 @@ package com.MoneyTrackr.MoneyTrackr.service;
 
 import java.util.List;
 
-import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.MoneyTrackr.MoneyTrackr.dto.NewUserDTO;
+import com.MoneyTrackr.MoneyTrackr.dto.UserDetailsImpl;
 import com.MoneyTrackr.MoneyTrackr.entity.Users;
 import com.MoneyTrackr.MoneyTrackr.exception.BadRequestException;
+import com.MoneyTrackr.MoneyTrackr.exception.DataIntegrityException;
+import com.MoneyTrackr.MoneyTrackr.exception.ForbiddenException;
 import com.MoneyTrackr.MoneyTrackr.exception.NotFoundException;
 import com.MoneyTrackr.MoneyTrackr.repository.UserRepository;
 
@@ -18,21 +22,32 @@ public class UserService {
 
 	@Autowired
 	private UserRepository repository;
-
-	@Autowired
-	private ModelMapper modelMapper;
 	
 	@Autowired
 	private PasswordEncoder pe;
+	
+	public static UserDetailsImpl authenticated() {
+		try {
+			return (UserDetailsImpl) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
 
 	public Users findUserByID(Long id) {
+		
+		UserDetailsImpl user = UserService.authenticated();
+		if (user==null || !id.equals(user.getId())) {
+			throw new ForbiddenException("Acesso negado");
+		}
 
 		return repository.findById(id)
 				.orElseThrow(() -> new NotFoundException("User not found: " + id));
 	}
 
 	public Users findUserByEmail(String email) {
-
+		
 		Users user = repository.findByEmail(email);
 		if (user == null) {
 			throw new NotFoundException("User not found: " + email);
@@ -42,6 +57,11 @@ public class UserService {
 	}
 	
 	public Users findUserByUserName(String userName) {
+		
+		UserDetailsImpl obj = UserService.authenticated();
+		if (obj==null || !userName.equals(obj.getUsername())) {
+			throw new ForbiddenException("Acesso negado");
+		}
 
 		Users user = repository.findByUserName(userName);
 		if (user == null) {
@@ -81,30 +101,36 @@ public class UserService {
 
 	    Users user = new Users(null, obj.getUserName(), pe.encode(obj.getPassword()), obj.getEmail(), obj.getDocument(), obj.getPhone());
 
-	    return repository.save(user);
+	    return save(user);
 
 	}
 
 	public void alterUser(Long id, NewUserDTO obj) {
-		boolean idExists = repository.existsById(id);
 		
-		if(!idExists) {
-			throw new BadRequestException("It was not possible to change ID " + id +" nonexistent");
-		}
+		Users user =  findUserByID(id);
+		
+		user.setEmail(obj.getEmail());
+		user.setPhone(obj.getPassword());
 
-		Users user = modelMapper.map(obj, Users.class);
-		user.setUserID(id);
-		user.setPassword(pe.encode(obj.getPassword()));
-		repository.save(user);
+		save(user);
 	}
 	
 	public void deleteUser(Long id) {
-		boolean exists = repository.existsById(id);
-		if(!exists) {
-			throw new BadRequestException("It was not possible to change ID " + id +" nonexistent");
+		
+		findUserByID(id);
+		
+		try {
+		
+			repository.deleteById(id);
 		}
-		repository.deleteById(id);
-
+		catch (DataIntegrityViolationException e) {
+			throw new DataIntegrityException("It is not possible to delete because there are related expenses or incomes");
+		}
 	}
 
+	public Users save(Users user) {
+		return repository.save(user);
+		
+	}
+	
 }

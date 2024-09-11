@@ -26,11 +26,24 @@ public class ResourceExceptionHandler extends ResponseEntityExceptionHandler{
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new StandardError(HttpStatus.BAD_REQUEST,
 				e.getMessage(), request.getRequestURI()));
 	}
+	@ExceptionHandler(ForbiddenException.class)
+	public ResponseEntity<StandardError> forbiddenException(ForbiddenException e, HttpServletRequest request){
+		
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new StandardError(HttpStatus.FORBIDDEN,
+				e.getMessage(), request.getRequestURI()));
+	}
 	
 	@ExceptionHandler(NotFoundException.class)
 	public ResponseEntity<StandardError> notFoundException(NotFoundException e, HttpServletRequest request){
 		
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new StandardError(HttpStatus.NOT_FOUND,
+				e.getMessage(), request.getRequestURI()));
+	}
+	
+	@ExceptionHandler(DataIntegrityException.class)
+	public ResponseEntity<StandardError> dataIntegrityException (DataIntegrityException e, HttpServletRequest request){
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new StandardError(HttpStatus.BAD_REQUEST,
 				e.getMessage(), request.getRequestURI()));
 	}
 	

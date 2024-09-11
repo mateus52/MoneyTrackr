@@ -49,36 +49,27 @@ public class ExpensesService {
 		}
 			
 		public void deleteExpense(Long id) {
-			boolean exists = repository.existsById(id);
-			if(!exists) {
-				throw new NotFoundException("It was not possible to change. User: " + id +" nonexistent");
-			}
+
+			findExpenseByID(id);
+
 			repository.deleteById(id);
 
 		}
 		
 		public void alterExpense(Long id, @Valid ExpenseDTO dto) {
-			boolean exists = repository.existsById(id);
-			if(!exists) {
-				throw new NotFoundException("It was not possible to change. User: " + id +" nonexistent");
-			}
-			
-			Users user = userService.findUserByID(dto.getUser());
-			
-			Expenses expense = modelMapper.map(dto, Expenses.class);
-			expense.setExpenseID(id);
-			expense.setUser(user);
+
+			Expenses expense = findExpenseByID(id);
+			expense.setAmount(dto.getAmount());
+			expense.setExpenseName(dto.getExpenseName());
+			expense.setExpenseData(dto.getExpenseData());
+
 			repository.save(expense);
 		}
 		
 		public Double sumExpenses(PeriodDTO dto, Long id) {
-			
-			Users user = userService.findUserByID(id);
-			
-			if(user == null) {
-				throw new NotFoundException("idUser not found: " + id);
-			}
-			
+
+			userService.findUserByID(id);
+
 			return repository.sumExpenses(dto.getInitialData(), dto.getFinalData(), id);
 		}
 		
